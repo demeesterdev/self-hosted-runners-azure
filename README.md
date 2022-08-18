@@ -1,1 +1,27 @@
-# self-hosted-runners-azure
+# Autoscaling Self hosted runners azure
+
+repo to create a self hosted auto scaling gihub runner on azure.  
+This implementation is inspired by https://github.com/Pwd9000-ML/docker-github-runner-linux
+It has some extra's not implemented in the repo/blog post:
+  - uses ephemeral runners to create a clean environment
+  - seperate autoscaling service
+
+demands that led to this implementation:
+ - auto scaling
+ - clean environment per run
+ - no added complexity in pipelines
+ - runs in private vnet
+ - not accesable from the internet
+
+This repo contains:
+ - TODO: github runner container definition
+ - TODO: github scale controller with container definition
+ - TODO: infra to run all services
+   - ACR storing container images
+   - Storage Account with message que
+   - Container app for github runner container
+   - Container app for github scale controller 
+
+
+
+
