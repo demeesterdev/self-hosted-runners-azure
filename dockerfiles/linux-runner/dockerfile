@@ -1,0 +1,48 @@
+# base image
+FROM ubuntu:20.04
+
+#input GitHub runner version argument
+ARG RUNNER_VERSION="latest"
+
+LABEL Author="tdemeester"
+LABEL Email="git@demeester.dev"
+LABEL GitHub="https://github.com/demeesterdev"
+
+COPY scripts/*debian.sh /tmp/library-scripts/
+
+# Install needed packages and setup non-root user. Use a separate RUN statement to add your own dependencies.
+ARG USERNAME=runner
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && bash /tmp/library-scripts/common-debian.sh "false" "${USERNAME}" "${USER_UID}" "${USER_GID}" "true" "true" "true" \ 
+    && apt-get install -y graphviz \
+    && apt-get clean -y && rm -rf /var/lib/apt/lists/*
+
+
+# [Option] Install Azure CLI
+ARG INSTALL_AZURE_CLI="true"
+# [Choice] Node.js version: none, lts/*, 16, 14, 12, 10
+ARG NODE_VERSION="lts/*"
+ENV NVM_DIR=/usr/local/share/nvm
+ENV NVM_SYMLINK_CURRENT=true \
+    PATH=${NVM_DIR}/current/bin:${PATH}
+RUN if [ "${INSTALL_AZURE_CLI}" = "true" ]; then bash /tmp/library-scripts/azcli-debian.sh; fi \
+    && if [ "${NODE_VERSION}" != "none" ]; then bash /tmp/library-scripts/node-debian.sh "${NVM_DIR}" "${NODE_VERSION}" "${USERNAME}"; fi \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV RUNNER_DIR=/home/runner/actions-runner
+ARG RUNNER_VERSION="latest"
+RUN bash /tmp/library-scripts/githubrunner-debian.sh "${RUNNER_DIR}" "${RUNNER_VERSION}" "${USERNAME}" 
+
+# add over the start.sh script
+ADD scripts/start-runner.sh /home/runner/start-runner.sh
+
+# make the script executable
+RUN chmod +x /home/runner/start-runner.sh
+
+# set the user to "runner" so all subsequent commands are run as the runner user
+USER runner
+
+# set the entrypoint to the start.sh script
+ENTRYPOINT ["/home/runner/start-runner.sh"]
