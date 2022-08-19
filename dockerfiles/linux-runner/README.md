@@ -1,4 +1,4 @@
-# containerized runner for github
+# containerized github runner on linux.
 
 runner created to run in azure container app service.  
 it has installed as extra:

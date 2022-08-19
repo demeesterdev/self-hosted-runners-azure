@@ -14,7 +14,7 @@ demands that led to this implementation:
  - not accesable from the internet
 
 This repo contains:
- - TODO: github runner container definition
+ -  github runner container definition
  - TODO: github scale controller with container definition
  - TODO: infra to run all services
    - ACR storing container images
