@@ -14,13 +14,13 @@ demands that led to this implementation:
  - not accesable from the internet
 
 This repo contains:
- -  github runner container definition
+ - github runner container definition
  - TODO: github scale controller with container definition
- - TODO: infra to run all services
+ - infra to run all services
    - ACR storing container images
-   - Storage Account with message que
-   - Container app for github runner container
-   - Container app for github scale controller 
+   - TODO: Storage Account with message que
+   - TODO: Container app for github runner container
+   - TODO: Container app for github scale controller 
 
 
 
