@@ -19,8 +19,15 @@ This repo contains:
  - infra to run all services
    - ACR storing container images
    - TODO: Storage Account with message que
-   - TODO: Container app for github runner container
+   - Container app for github runner container
    - TODO: Container app for github scale controller 
+
+## requirements
+
+Apart from authentication this repository contains everything needed for deployment.
+You need 2 PAT tokens for this project:
+ - one with repo access to cobnfigure
+
 
 
 

@@ -29,11 +29,13 @@ ENV NVM_SYMLINK_CURRENT=true \
     PATH=${NVM_DIR}/current/bin:${PATH}
 RUN if [ "${INSTALL_AZURE_CLI}" = "true" ]; then bash /tmp/library-scripts/azcli-debian.sh; fi \
     && if [ "${NODE_VERSION}" != "none" ]; then bash /tmp/library-scripts/node-debian.sh "${NVM_DIR}" "${NODE_VERSION}" "${USERNAME}"; fi \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 ENV RUNNER_DIR=/home/runner/actions-runner
 ARG RUNNER_VERSION="latest"
-RUN bash /tmp/library-scripts/githubrunner-debian.sh "${RUNNER_DIR}" "${RUNNER_VERSION}" "${USERNAME}" 
+RUN bash /tmp/library-scripts/githubrunner-debian.sh "${RUNNER_DIR}" "${RUNNER_VERSION}" "${USERNAME}" \
+    && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 # add over the start.sh script
 ADD scripts/start-runner.sh /home/runner/start-runner.sh
