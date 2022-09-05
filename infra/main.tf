@@ -11,7 +11,7 @@ resource "azurerm_container_registry" "runner_acr" {
   admin_enabled       = true
 }
 
-resource "azurerm_container_registry_task" "runner_build_task_linux_on_main" {
+resource "azurerm_container_registry_task" "runner_build_task_linux" {
   name                  = "${var.registry_build_task_name}-linux-main-commit"
   container_registry_id = azurerm_container_registry.runner_acr.id
   enabled               = true
@@ -24,21 +24,13 @@ resource "azurerm_container_registry_task" "runner_build_task_linux_on_main" {
     context_access_token = var.container_build_context_access_token
     image_names = [
       "${var.container_build_image_name}:${var.container_build_linux_image_tag}-{{.Run.ID}}",
-      "${var.container_build_image_name}:${var.container_build_linux_image_tag}-auto",
+      "${var.container_build_image_name}:${var.container_build_linux_image_tag}-tf-apply",
     ]
   }
+}
 
-  source_trigger {
-    name           = "source trigger linx"
-    events         = ["commit"]
-    repository_url = var.container_build_linux_context
-    source_type    = "Github"
-    branch         = "main"
-    authentication {
-      token      = var.container_build_context_access_token
-      token_type = "PAT"
-    }
-  }
+resource "azurerm_container_registry_task_schedule_run_now" "runner_build_task_linux" {
+  container_registry_task_id = azurerm_container_registry_task.runner_build_task_linux.id
 }
 
 resource "azurerm_log_analytics_workspace" "law" {
