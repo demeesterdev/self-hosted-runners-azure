@@ -55,8 +55,14 @@ variable "container_build_context_access_token" {
 }
 
 variable "container_build_linux_execute_after_apply" {
-    type = bool
-    nullable = false
-    default = false
-    description = "Add a step to rebuild the container after tf apply. added for development."
+  type        = bool
+  nullable    = false
+  default     = false
+  description = "Add a step to rebuild the container after tf apply. added for development."
+}
+
+variable "container_app_name" {
+  type        = string
+  description = "Name for the container app"
+  nullable    = false
 }

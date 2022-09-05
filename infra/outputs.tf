@@ -7,6 +7,6 @@ output "registry_login_server" {
 }
 
 output "container_build_excute_time" {
-    description = "time at wich the acr task run if execute after apply variable is set to true"
-    value = local.runtimestamp
+  description = "time at wich the acr task run if execute after apply variable is set to true"
+  value       = local.runtimestamp
 }
