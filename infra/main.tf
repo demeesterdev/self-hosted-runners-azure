@@ -11,6 +11,19 @@ resource "azurerm_container_registry" "runner_acr" {
   admin_enabled       = true
 }
 
+resource "azurerm_user_assigned_identity" "aca_identity" {
+  resource_group_name = azurerm_resource_group.runner_group.name
+  location            = azurerm_resource_group.runner_group.location
+
+  name = "${var.container_app_name}-identity"
+}
+
+resource "azurerm_role_assignment" "example" {
+  scope                = azurerm_container_registry.runner_acr.id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_user_assigned_identity.aca_identity.principal_id
+}
+
 resource "azurerm_container_registry_task" "runner_build_task_linux" {
   name                  = "${var.registry_build_task_name}-linux-tfapply"
   container_registry_id = azurerm_container_registry.runner_acr.id
@@ -25,6 +38,7 @@ resource "azurerm_container_registry_task" "runner_build_task_linux" {
     image_names = [
       "${var.container_build_image_name}:${var.container_build_linux_image_tag}-{{.Run.ID}}",
       "${var.container_build_image_name}:${var.container_build_linux_image_tag}-tf-apply",
+      "${var.container_build_image_name}:${var.container_build_linux_image_tag}",
     ]
   }
 }
@@ -54,6 +68,82 @@ resource "azapi_resource" "aca_env" {
         logAnalyticsConfiguration = {
           customerId = azurerm_log_analytics_workspace.law.workspace_id
           sharedKey  = azurerm_log_analytics_workspace.law.primary_shared_key
+        }
+      }
+    }
+  })
+}
+
+resource "azapi_resource" "aca_ghrunner" {
+  depends_on = [
+    azurerm_container_registry_task_schedule_run_now.runner_build_task_linux
+  ]
+  type      = "Microsoft.App/containerApps@2022-03-01"
+  parent_id = azurerm_resource_group.runner_group.id
+  location  = azurerm_resource_group.runner_group.location
+  name      = var.container_app_name
+  identity {
+    type = "UserAssigned"
+    identity_ids = [
+      azurerm_user_assigned_identity.aca_identity.id
+    ]
+  }
+
+  body = jsonencode({
+    properties = {
+      managedEnvironmentId = azapi_resource.aca_env.id
+      configuration = {
+        secrets = [
+          {
+            name  = "github-runner-registration-token"
+            value = var.runner_registration_token
+          },
+          {
+            name  = "github-runner-organization"
+            value = var.runner_organization_name
+          }
+        ]
+        registries = [
+          {
+            server = azurerm_container_registry.runner_acr.login_server
+            identity = azurerm_user_assigned_identity.aca_identity.id
+          }
+        ]
+      }
+      template = {
+        containers = [
+          {
+            name = "github-runner"
+            image = "${azurerm_container_registry.runner_acr.login_server}/${var.container_build_image_name}:${var.container_build_linux_image_tag}"
+            env = [
+              {
+                name      = "GH_ORGANIZATION"
+                secretRef = "github-runner-organization"
+              },
+              { 
+                name = "GH_TOKEN"
+                secretRef = "github-runner-organization" 
+              }
+            ]
+            resources = {
+              cpu = 1
+              memory = "2.0Gi"
+            }
+          }
+        ]
+        scale = {
+          minReplicas = "1"
+          maxReplicas = "10"
+          rules = [{
+            name = "cpuScalingRule"
+            custom = {
+              type = "cpu",
+              metadata = {
+                type = "Utilization"
+                value = "10"
+              }
+            }
+          }]
         }
       }
     }

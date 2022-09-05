@@ -66,3 +66,14 @@ variable "container_app_name" {
   description = "Name for the container app"
   nullable    = false
 }
+
+variable "runner_registration_token" {
+  type        = string
+  sensitive   = true
+  description = "token used by the runner to register itself"
+}
+
+variable "runner_organization_name" {
+  type        = string
+  description = "organization used by the runner for registration"
+}
