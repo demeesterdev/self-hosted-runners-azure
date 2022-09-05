@@ -12,7 +12,7 @@ resource "azurerm_container_registry" "runner_acr" {
 }
 
 resource "azurerm_container_registry_task" "runner_build_task_linux" {
-  name                  = "${var.registry_build_task_name}-linux-main-commit"
+  name                  = "${var.registry_build_task_name}-linux-tfapply"
   container_registry_id = azurerm_container_registry.runner_acr.id
   enabled               = true
   platform {
