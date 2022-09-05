@@ -105,7 +105,7 @@ resource "azapi_resource" "aca_ghrunner" {
         ]
         registries = [
           {
-            server = azurerm_container_registry.runner_acr.login_server
+            server   = azurerm_container_registry.runner_acr.login_server
             identity = azurerm_user_assigned_identity.aca_identity.id
           }
         ]
@@ -113,20 +113,20 @@ resource "azapi_resource" "aca_ghrunner" {
       template = {
         containers = [
           {
-            name = "github-runner"
+            name  = "github-runner"
             image = "${azurerm_container_registry.runner_acr.login_server}/${var.container_build_image_name}:${var.container_build_linux_image_tag}"
             env = [
               {
                 name      = "GH_ORGANIZATION"
                 secretRef = "github-runner-organization"
               },
-              { 
-                name = "GH_TOKEN"
-                secretRef = "github-runner-registration-token" 
+              {
+                name      = "GH_TOKEN"
+                secretRef = "github-runner-registration-token"
               }
             ]
             resources = {
-              cpu = 1
+              cpu    = 1
               memory = "2.0Gi"
             }
           }
@@ -139,7 +139,7 @@ resource "azapi_resource" "aca_ghrunner" {
             custom = {
               type = "cpu",
               metadata = {
-                type = "Utilization"
+                type  = "Utilization"
                 value = "10"
               }
             }
