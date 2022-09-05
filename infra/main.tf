@@ -122,7 +122,7 @@ resource "azapi_resource" "aca_ghrunner" {
               },
               { 
                 name = "GH_TOKEN"
-                secretRef = "github-runner-organization" 
+                secretRef = "github-runner-registration-token" 
               }
             ]
             resources = {
@@ -132,10 +132,10 @@ resource "azapi_resource" "aca_ghrunner" {
           }
         ]
         scale = {
-          minReplicas = "1"
-          maxReplicas = "10"
+          minReplicas = 1
+          maxReplicas = 10
           rules = [{
-            name = "cpuScalingRule"
+            name = "cpu-scaling-rule"
             custom = {
               type = "cpu",
               metadata = {
@@ -149,22 +149,3 @@ resource "azapi_resource" "aca_ghrunner" {
     }
   })
 }
-
-# resource "azapi_resource" "aca" {
-#   type = "Microsoft.App/containerApps@2022-03-01"
-#   parent_id = azurerm_resource_group.runner_group.id
-#   location = azurerm_resource_group.runner_group.location
-#   name = var.container_app_name
-
-#   body = jsonencode({
-#     properties = {
-#     managedEnvironmentId = azapi_resource.aca_env.id
-#       configuration = {
-#         ingress = {
-#           external = false
-#         }
-
-#       }
-#     }
-#   })
-# }
