@@ -23,6 +23,8 @@ jobs:
       run:
         shell: bash
         working-directory: ./infra
+    env:
+      ARM_USE_OIDC: "true"
     steps:
     - uses: actions/checkout@v2
     - name: 'Az CLI OIDC login'
