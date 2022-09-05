@@ -73,7 +73,7 @@ resource "azapi_resource" "aca_env" {
 #   parent_id = azurerm_resource_group.runner_group.id
 #   location = azurerm_resource_group.runner_group.location
 #   name = var.container_app_name
-  
+
 #   body = jsonencode({
 #     properties = {
 #     managedEnvironmentId = azapi_resource.aca_env.id
