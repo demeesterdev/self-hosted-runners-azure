@@ -134,7 +134,7 @@ resource "azapi_resource" "aca_ghrunner" {
         scale = {
           minReplicas = 5
           maxReplicas = 5
-          rules = []
+          rules       = []
         }
       }
     }
