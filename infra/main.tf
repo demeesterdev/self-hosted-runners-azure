@@ -132,18 +132,9 @@ resource "azapi_resource" "aca_ghrunner" {
           }
         ]
         scale = {
-          minReplicas = 1
-          maxReplicas = 10
-          rules = [{
-            name = "cpu-scaling-rule"
-            custom = {
-              type = "cpu",
-              metadata = {
-                type  = "Utilization"
-                value = "10"
-              }
-            }
-          }]
+          minReplicas = 5
+          maxReplicas = 5
+          rules = []
         }
       }
     }
