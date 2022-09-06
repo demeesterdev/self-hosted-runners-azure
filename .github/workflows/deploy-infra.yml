@@ -51,9 +51,13 @@ jobs:
       run: terraform plan -no-color -input=false
       env:
         TF_VAR_container_build_context_access_token: ${{ secrets.GITHUB_TOKEN }}
+        TF_VAR_runner_organization_name: ${{ secrets.RUNNER_ORGANIZATION }}
+        TF_VAR_runner_registration_token: ${{ secrets.RUNNER_TOKEN }}
 
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: terraform apply -auto-approve -input=false
       env:
         TF_VAR_container_build_context_access_token: ${{ secrets.GITHUB_TOKEN }}
+        TF_VAR_runner_organization_name: ${{ secrets.RUNNER_ORGANIZATION }}
+        TF_VAR_runner_registration_token: ${{ secrets.RUNNER_TOKEN }}
