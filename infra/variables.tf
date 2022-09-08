@@ -72,3 +72,8 @@ variable "runner_organization_name" {
   type        = string
   description = "organization used by the runner for registration"
 }
+
+variable "runner_task_identity_name" {
+  type = string
+  description = "identity name used for the user assigned identity"
+}
