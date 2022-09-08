@@ -67,6 +67,8 @@ jobs:
           fi
       - name: 'create acr task'
         id: createacrtask
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           container_tags=()
           for tag in $(cat .tags); do
