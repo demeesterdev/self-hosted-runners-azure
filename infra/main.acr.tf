@@ -36,7 +36,7 @@ resource "azurerm_container_registry_task" "runner_build_task_linux" {
 }
 
 resource "azurerm_container_registry_agent_pool" "runner_acr_pool" {
-  name                          = "${var.registry_name}-agent-pool"
+  name                          = "runner-agent-pool"
   resource_group_name           = azurerm_resource_group.runner_group.name
   location                      = azurerm_resource_group.runner_group.location
   container_registry_name       = azurerm_container_registry.runner_acr.name
