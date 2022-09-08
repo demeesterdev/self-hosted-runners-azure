@@ -16,11 +16,6 @@ variable "registry_name" {
   nullable    = false
 }
 
-variable "registry_sku" {
-  type        = string
-  description = "Sku for the registry about to be deployed"
-}
-
 variable "registry_build_task_name" {
   type        = string
   description = "name for the runner build task in acr"
