@@ -1,11 +1,11 @@
 
 resource "azurerm_container_registry" "runner_acr" {
-  name                = var.registry_name
-  resource_group_name = azurerm_resource_group.runner_group.name
-  location            = azurerm_resource_group.runner_group.location
-  sku                 = "Premium"
-  admin_enabled       = true
-
+  name                          = var.registry_name
+  resource_group_name           = azurerm_resource_group.runner_group.name
+  location                      = azurerm_resource_group.runner_group.location
+  sku                           = "Premium"
+  admin_enabled                 = true
+  public_network_access_enabled = false
 }
 
 resource "azurerm_role_assignment" "container_app_access" {
@@ -51,7 +51,9 @@ resource "azurerm_private_endpoint" "runner_acr" {
     subresource_names              = ["registry"]
   }
 
-
-
+  private_dns_zone_group {
+    name = "PR-ACR-DNS-zone-group"
+    private_dns_zone_ids = [ azurerm_private_dns_zone.privatelink_azurecr_io.id ]
+  }   
 }
 
