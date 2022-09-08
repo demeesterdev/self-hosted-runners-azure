@@ -19,6 +19,7 @@ resource "azurerm_container_registry_task" "runner_build_task_linux" {
   name                  = "${var.registry_build_task_name}-linux-tfapply"
   container_registry_id = azurerm_container_registry.runner_acr.id
   enabled               = true
+  agent_pool_name       = azurerm_container_registry_agent_pool.runner_acr_pool.name
   platform {
     os = "Linux"
   }
@@ -32,6 +33,14 @@ resource "azurerm_container_registry_task" "runner_build_task_linux" {
       "${var.container_build_image_name}:${var.container_build_linux_image_tag}",
     ]
   }
+}
+
+resource "azurerm_container_registry_agent_pool" "runner_acr_pool" {
+  name                          = "${var.registry_name}-agent-pool"
+  resource_group_name           = azurerm_resource_group.runner_group.name
+  location                      = azurerm_resource_group.runner_group.location
+  container_registry_name       = azurerm_container_registry.runner_acr.name
+  virtual_network_subnet_id     = azurerm_subnet.acr.id
 }
 
 resource "azurerm_container_registry_task_schedule_run_now" "runner_build_task_linux" {
