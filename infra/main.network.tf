@@ -25,7 +25,7 @@ resource "azurerm_subnet" "aca" {
   name                                      = "${var.container_app_name}-aca-subnet"
   resource_group_name                       = azurerm_resource_group.runner_group.name
   virtual_network_name                      = azurerm_virtual_network.ghrunnervnet.name
-  address_prefixes                          = ["10.0.3.0/24"]
+  address_prefixes                          = ["10.0.4.0/23"] #next available is 10.0.6.0/x
   private_endpoint_network_policies_enabled = false
 }
 

@@ -21,6 +21,14 @@ resource "azapi_resource" "aca_env" {
           sharedKey  = azurerm_log_analytics_workspace.law.primary_shared_key
         }
       }
+      vnetConfiguration : {
+        #dockerBridgeCidr: 'string'
+        infrastructureSubnetId : azurerm_subnet.aca.id #ID of subnet ACA -> Resource ID of a subnet for infrastructure components
+        internal : true
+        #platformReservedCidr: 'string'
+        #platformReservedDnsIP: 'string'
+        #runtimeSubnetId: '' #ID of subnet ACA runtine -> Resource ID of a subnet that Container App containers are injected into. This subnet must be in the same VNET as the subnet defined in infrastructureSubnetId.
+      }
     }
   })
 }
@@ -92,4 +100,18 @@ resource "azapi_resource" "aca_ghrunner" {
       }
     }
   })
+}
+
+resource "azurerm_private_endpoint" "runner_aca" {
+  name = "${var.container_app_name}-aca-endpoint"
+  resource_group_name = azurerm_resource_group.runner_group.name
+  location = azurerm_resource_group.runner_group.location
+  subnet_id = azurerm_subnet.aca.id
+  
+  private_service_connection {
+    name  = "${var.container_app_name}-aca-privateserviceconnection"
+    private_connection_resource_id = azapi_resource.aca_env.id
+    is_manual_connection = "false"
+    subresource_names = ["aca environment"]
+  }
 }
