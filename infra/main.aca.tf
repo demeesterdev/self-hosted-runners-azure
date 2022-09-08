@@ -27,7 +27,7 @@ resource "azapi_resource" "aca_env" {
         internal : true
         #platformReservedCidr: 'string'
         #platformReservedDnsIP: 'string'
-        #runtimeSubnetId: '' #ID of subnet ACA runtine -> Resource ID of a subnet that Container App containers are injected into. This subnet must be in the same VNET as the subnet defined in infrastructureSubnetId.
+        runtimeSubnetId: azurerm_subnet.aca_runtime.id #ID of subnet ACA runtine -> Resource ID of a subnet that Container App containers are injected into. This subnet must be in the same VNET as the subnet defined in infrastructureSubnetId.
       }
     }
   })
@@ -107,7 +107,7 @@ resource "azapi_resource" "aca_ghrunner" {
 #   resource_group_name = azurerm_resource_group.runner_group.name
 #   location = azurerm_resource_group.runner_group.location
 #   subnet_id = azurerm_subnet.aca.id
-  
+
 #   private_service_connection {
 #     name  = "${var.container_app_name}-aca-privateserviceconnection"
 #     private_connection_resource_id = azapi_resource.aca_env.id
