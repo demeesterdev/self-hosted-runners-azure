@@ -29,6 +29,14 @@ resource "azurerm_subnet" "aca" {
   private_endpoint_network_policies_enabled = false
 }
 
+resource "azurerm_subnet" "aca_runtime" {
+  name = "${var.container_app_name}-aca-runtime-subnet"
+  resource_group_name                       = azurerm_resource_group.runner_group.name
+  virtual_network_name                      = azurerm_virtual_network.ghrunnervnet.name
+  address_prefixes                          = ["10.0.3.0/24"]
+  private_endpoint_network_policies_enabled = false
+}
+
 resource "azurerm_private_dns_zone" "privatelink_azurecr_io" {
   name                = "privatelink.azurecr.io"
   resource_group_name = azurerm_resource_group.runner_group.name
