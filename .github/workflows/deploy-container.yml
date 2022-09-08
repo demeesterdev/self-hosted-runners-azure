@@ -25,14 +25,70 @@ jobs:
     environment: production
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: 'Az CLI login'
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.ARM_CLIENT_ID }}
           tenant-id: ${{ secrets.ARM_TENANT_ID }}
           subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-
-      - name: 'Run az commands'
+      - name: 'get acr data'
         run: |
-          az account show
-          az group list
+          parse_tf_param_to_env_var() {
+            # read tfvar files from infra folder and look for a match, the last match is set as env value
+            # $1 = name of parameter to match
+            # $2 = the env value in subsequent steps
+            param_value=""
+            for f in $( find ./infra -name *.auto.tfvars ); do 
+              for match in $(grep "^$1 " $f); do
+                if [[ "$match" =~ \"(.*)\" ]] ; then
+                    param_value="${BASH_REMATCH[1]}"
+                fi
+              done
+            done
+            echo "$2=$param_value" >> $GITHUB_ENV
+          }
+          parse_tf_param_to_env_var 'registry_name'                         'RUNNER_REGISTRY_NAME'
+          parse_tf_param_to_env_var 'registry_build_task_name'              'RUNNER_BUILD_TASK_NAME'
+          parse_tf_param_to_env_var 'container_build_image_name'            'RUNNER_BUILD_IMAGE_NAME'
+          parse_tf_param_to_env_var 'container_build_linux_context'         'RUNNER_BUILD_CONTEXT'
+          parse_tf_param_to_env_var 'container_build_linux_dockerfile_path' 'RUNNER_BUILD_CONTEXT_DOCKERFILE'
+          parse_tf_param_to_env_var 'container_build_linux_image_tag'       'RUNNER_BUILD_IMAGE_TAG_LINUX'
+      - name: 'compile tag list'
+        run: |
+          touch .tags 
+          echo "${RUNNER_BUILD_IMAGE_NAME}:${RUNNER_BUILD_IMAGE_TAG_LINUX}-{{.Run.ID}}" >> .tags
+          echo "${RUNNER_BUILD_IMAGE_NAME}:${RUNNER_BUILD_IMAGE_TAG_LINUX}-ghaction-${GITHUB_RUN_ID}" >> .tags
+          
+          # if from main branch add latest and linux tag
+          if [ $GITHUB_REF == 'refs/heads/main' ] && [ $GITHUB_REF_NAME == 'push' ]; then
+            echo "${RUNNER_BUILD_IMAGE_NAME}:${RUNNER_BUILD_IMAGE_TAG_LINUX}" >> .tags
+            echo "${RUNNER_BUILD_IMAGE_NAME}:latest" >> .tags
+          fi
+      - name: 'create acr task'
+        id: createacrtask
+        run: |
+          container_tags=()
+          for tag in $(cat .tags); do
+            container_tags+=(-t)
+            container_tags+=($tag)
+          done
+
+          az acr task create \
+            -r $RUNNER_REGISTRY_NAME \
+            -n "${RUNNER_BUILD_TASK_NAME}-ghaction-run-${GITHUB_RUN_ID}" \
+            -c "${RUNNER_BUILD_CONTEXT}" \
+            -f "${RUNNER_BUILD_CONTEXT_DOCKERFILE}" \
+            --git-access-token "${GH_TOKEN}" \
+            --platform linux "${container_tags[@]}"
+      - name: 'run acr task'
+        id: 
+        run: | 
+          az acr task run -r $RUNNER_REGISTRY_NAME -n "${RUNNER_BUILD_TASK_NAME}-ghaction-run-${GITHUB_RUN_ID}"
+      - name: 'remove acr task'
+        if: "${{ steps.createacrtask.conclusion == 'success'}}"
+        continue-on-error: true
+        run: |
+          az acr task delete -r $RUNNER_REGISTRY_NAME -n "${RUNNER_BUILD_TASK_NAME}-ghaction-run-${GITHUB_RUN_ID}" -y
+
+          
