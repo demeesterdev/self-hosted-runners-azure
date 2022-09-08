@@ -21,7 +21,7 @@ resource "azurerm_role_assignment" "runner_task_access" {
 }
 
 resource "azurerm_user_assigned_identity" "runner_task_identity" {
-  name  = var.runner-task-identity
+  name  = var.runner_task_identity_name
   location = azurerm_resource_group.runner_group.location
   resource_group_name = azurerm_resource_group.runner_group.name
 }
