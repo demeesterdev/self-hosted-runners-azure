@@ -107,7 +107,7 @@ resource "azapi_resource" "aca_ghrunner" {
 #   resource_group_name = azurerm_resource_group.runner_group.name
 #   location = azurerm_resource_group.runner_group.location
 #   subnet_id = azurerm_subnet.aca.id
-  
+
 #   private_service_connection {
 #     name  = "${var.container_app_name}-aca-privateserviceconnection"
 #     private_connection_resource_id = azapi_resource.aca_env.id
