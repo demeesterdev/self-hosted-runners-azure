@@ -112,6 +112,6 @@ resource "azurerm_private_endpoint" "runner_aca" {
     name  = "${var.container_app_name}-aca-privateserviceconnection"
     private_connection_resource_id = azapi_resource.aca_env.id
     is_manual_connection = "false"
-    subresource_names = ["aca environment"]
+    subresource_names = ["aca_environment"]
   }
 }
