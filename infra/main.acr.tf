@@ -14,12 +14,27 @@ resource "azurerm_role_assignment" "container_app_access" {
   principal_id         = azurerm_user_assigned_identity.aca_identity.principal_id
 }
 
+resource "azurerm_role_assignment" "runner_task_access" {
+  scope                = azurerm_container_registry.runner_acr.id
+  role_definition_name = "AcrPush"
+  principal_id         = azurerm_user_assigned_identity.runner_task_identity.principal_id
+}
+
+resource "azurerm_user_assigned_identity" "runner_task_identity" {
+  name  = var.runner_task_identity_name
+  location = azurerm_resource_group.runner_group.location
+  resource_group_name = azurerm_resource_group.runner_group.name
+}
 
 resource "azurerm_container_registry_task" "runner_build_task_linux" {
   name                  = "${var.registry_build_task_name}-linux-tfapply"
   container_registry_id = azurerm_container_registry.runner_acr.id
   enabled               = true
   agent_pool_name       = azurerm_container_registry_agent_pool.runner_acr_pool.name
+  identity {
+    type = "UserAssigned"
+    identity_ids = [ azurerm_user_assigned_identity.runner_task_identity.id ]
+  }
   platform {
     os = "Linux"
   }
