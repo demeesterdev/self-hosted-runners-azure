@@ -46,9 +46,6 @@ jobs:
       name: ${{ needs.parsecontext.outputs.env_name }}
     runs-on: ubuntu-latest
     steps:
-      - name: show env
-        run: |
-          echo "passed by parse_context:  [${{ needs.parse_context.outputs.env_name }}]"
       - uses: actions/checkout@v2
       - name: 'Az CLI login'
         uses: azure/login@v1
@@ -110,6 +107,20 @@ jobs:
 
           echo "::debug::creating acr task '${RUNNER_BUILD_TASK_NAME}-ghaction-run-${GITHUB_RUN_ID}'"
           
+          echo "task to run"
+          echo "----"
+          echo ""
+          echo "az acr task create \\"
+          echo "  -r $RUNNER_REGISTRY_NAME \\"
+          echo "  -n '${RUNNER_BUILD_TASK_NAME}-ghaction-run-${GITHUB_RUN_ID}' \\"
+          echo "  -c '${RUNNER_BUILD_CONTEXT}' \\"
+          echo "  -f '${RUNNER_BUILD_CONTEXT_DOCKERFILE}' \\"
+          echo "  --agent-pool '${RUNNER_BUILD_AGENT_POOL_NAME}' \\"
+          echo "  --git-access-token '\${GH_TOKEN}' \\"
+          echo "  --platform linux ${container_tags[@]}"
+          echo ""
+          echo "----"
+
           az acr task create \
             -r $RUNNER_REGISTRY_NAME \
             -n "${RUNNER_BUILD_TASK_NAME}-ghaction-run-${GITHUB_RUN_ID}" \
