@@ -1,0 +1,4 @@
+ghrunner:linux-{{.Run.ID}}
+ghrunner:linux-ghaction-run-0123456
+ghrunner:linux
+ghrunner:latest
