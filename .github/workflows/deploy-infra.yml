@@ -91,14 +91,37 @@ jobs:
         TF_VAR_runner_organization_name: ${{ secrets.RUNNER_ORGANIZATION }}
         TF_VAR_runner_registration_token: ${{ secrets.RUNNER_TOKEN }}
 
+  # scale down to zero runners if no tasks are running or queued
+  scaleagents:
+    needs: [deploy,parsecontext]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
     - name: 'Az CLI login'
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push' || github.event_name == 'workflow_dispatch'
       uses: azure/login@v1
       with:
         client-id: ${{ secrets.ARM_CLIENT_ID }}
         tenant-id: ${{ secrets.ARM_TENANT_ID }}
         subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-    # scale down to zero runners if no tasks are running or queued
+    - name: 'get acr data'
+        id: getinfraparams
+        run: |
+          parse_tf_param_to_env_var() {
+            # read tfvar files from infra folder and look for a match, the last match is set as env value
+            # $1 = name of parameter to match
+            # $2 = the env value in subsequent steps
+            param_value=""
+            for f in $( find ./infra -name *.auto.tfvars ); do 
+              for match in $(grep "^$1 " $f); do
+                if [[ "$match" =~ \"(.*)\" ]] ; then
+                    param_value="${BASH_REMATCH[1]}"
+                fi
+              done
+            done
+            echo "$2=$param_value" >> $GITHUB_ENV
+          }
+          parse_tf_param_to_env_var 'registry_name'                         'RUNNER_REGISTRY_NAME'
+          parse_tf_param_to_env_var 'registry_agent_pool_name'              'RUNNER_REGISTRY_AGENT_POOL_NAME'
     - name: scale-down agent pool
       if: github.ref == 'refs/heads/main' && github.event_name == 'push' || github.event_name == 'workflow_dispatch'
       run: |
