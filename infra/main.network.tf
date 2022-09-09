@@ -22,7 +22,7 @@ resource "azurerm_subnet" "acr" {
 }
 
 resource "azurerm_subnet" "aca_runtime" {
-  name                                      = "${var.container_app_name}-aca-runtime-subnet"
+  name = "${var.container_app_name}-aca-runtime-subnet"
   resource_group_name                       = azurerm_resource_group.runner_group.name
   virtual_network_name                      = azurerm_virtual_network.ghrunnervnet.name
   address_prefixes                          = ["10.0.1.128/25"]
