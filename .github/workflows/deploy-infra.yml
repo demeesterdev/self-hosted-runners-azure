@@ -94,6 +94,8 @@ jobs:
   # scale down to zero runners if no tasks are running or queued
   scaleagents:
     needs: [deploy,parsecontext]
+    environment: 
+      name: ${{ needs.parsecontext.outputs.env_name }}
     if: github.ref == 'refs/heads/main' && github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
