@@ -6,6 +6,11 @@ resource "azurerm_container_registry" "runner_acr" {
   sku                           = "Premium"
   admin_enabled                 = true
   public_network_access_enabled = false
+  network_rule_bypass_option    = "AzureServices"
+  retention_policy {
+    days    = 7
+    enabled = true
+  }
 }
 
 resource "azurerm_role_assignment" "container_app_access" {
@@ -44,6 +49,9 @@ resource "azurerm_container_registry_agent_pool" "runner_acr_pool" {
 }
 
 resource "azurerm_container_registry_task_schedule_run_now" "runner_build_task_linux" {
+  depends_on = [
+    azurerm_private_endpoint.runner_acr
+  ]
   container_registry_task_id = azurerm_container_registry_task.runner_build_task_linux.id
 }
 
