@@ -100,7 +100,7 @@ jobs:
           container_tags=()
           for tag in $(cat .tags); do
             container_tags+=(-t)
-            container_tags+=("'$tag'")
+            container_tags+=("$tag")
           done
 
           echo "::debug::creating acr task '${RUNNER_BUILD_TASK_NAME}-ghaction-run-${GITHUB_RUN_ID}'"
