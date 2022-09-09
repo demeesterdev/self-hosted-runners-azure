@@ -8,7 +8,7 @@ resource "azurerm_container_registry" "runner_acr" {
   public_network_access_enabled = false
   network_rule_bypass_option    = "AzureServices"
   retention_policy {
-    days = 7
+    days    = 7
     enabled = true
   }
 }

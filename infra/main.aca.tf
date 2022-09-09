@@ -24,7 +24,7 @@ resource "azapi_resource" "aca_env" {
       vnetConfiguration = {
         #dockerBridgeCidr: 'string'
         infrastructureSubnetId = azurerm_subnet.aca.id #ID of subnet ACA -> Resource ID of a subnet for infrastructure components
-        internal = true
+        internal               = true
         #platformReservedCidr: 'string'
         #platformReservedDnsIP: 'string'
         runtimeSubnetId = azurerm_subnet.aca_runtime.id #ID of subnet ACA runtine -> Resource ID of a subnet that Container App containers are injected into. This subnet must be in the same VNET as the subnet defined in infrastructureSubnetId.
