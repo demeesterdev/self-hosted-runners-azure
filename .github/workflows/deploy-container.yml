@@ -21,8 +21,10 @@ permissions:
 
 jobs:
   parse_context:
+    runs-on: ubuntu-latest
+    name: parse github context for environment
     steps:
-      - name: get environment context from github context
+      - name: parse environment to outputs
         id: getenv
         run: |
           if   [ $GITHUB_REF == 'refs/heads/main' ] && [ $GITHUB_EVENT_NAME == 'push' ]; then
