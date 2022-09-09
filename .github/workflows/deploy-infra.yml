@@ -132,7 +132,7 @@ jobs:
                az acr task list-runs -r $RUNNER_REGISTRY_NAME |
                jq -c '[.[] | {name: .name, status: .status} | select( .status == "Running" or .status == "Queued" or .status == "Started")] | length'
             )
-            if [$unfinished_runs == 0] ; then
+            if ["$unfinished_runs" == '0'] ; then
               echo "::notice::no more running build tasks, scaling down run"
               az acr agentpool update \
                 --registry $RUNNER_REGISTRY_NAME \
