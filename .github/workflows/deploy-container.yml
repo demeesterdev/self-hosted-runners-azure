@@ -114,10 +114,10 @@ jobs:
             -f "${RUNNER_BUILD_CONTEXT_DOCKERFILE}" \
             --agent-pool "${RUNNER_REGISTRY_AGENT_POOL_NAME}" \
             --git-access-token '${{ secrets.GITHUB_TOKEN }}' \
-            --platform linux "${container_tags[@]}"
+            --platform linux ${container_tags[@]}
           EOCOMMAND
           )
-          
+
           echo "task to run"
           echo "----"
           echo ""
