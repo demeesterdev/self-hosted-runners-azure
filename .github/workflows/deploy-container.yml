@@ -90,13 +90,13 @@ jobs:
           required_agents=$(
              az acr task list-runs -r $RUNNER_REGISTRY_NAME |
              jq --arg flag "$RUNNER_REGISTRY_AGENT_POOL_NAME" -c '
-                [
+                [([
                   .[] | 
                   select(.agentPoolName == $flag) |
-                  select( .status == "Running" or .status == "Queued" or .status == "Started")]
+                  select( .status == "Running" or .status == "Queued" or .status == "Started")
                 ] | 
                 length |
-                . + 1' --raw-output
+                . + 1), 4 ] | min' --raw-output
           )
           
           az acr agentpool update \
