@@ -7,3 +7,4 @@ container_build_linux_context         = "https://github.com/demeesterdev/self-ho
 container_build_linux_dockerfile_path = "dockerfile"
 container_build_linux_image_tag       = "linux"
 container_app_name                    = "demappghrunnerdemo-aca"
+registry_agent_pool_name              = "registry-agent-pool"
