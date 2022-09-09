@@ -20,29 +20,35 @@ permissions:
       contents: read
 
 jobs:
-  parse_context:
+  parsecontext:
     runs-on: ubuntu-latest
     name: parse github context for environment
     steps:
       - name: parse environment to outputs
         id: getenv
         run: |
-          if   [ $GITHUB_REF == 'refs/heads/main' ] && [ $GITHUB_EVENT_NAME == 'push' ]; then
+          if   [ "${{ github.ref }}" = 'refs/heads/main' ] && [ "${{ github.event_name }}" = 'push' ]; then
             echo "::set-output name=env_name::production"
-          elif [ $GITHUB_REF == 'refs/heads/main' ] && [ $GITHUB_EVENT_NAME == 'workflow_dispatch' ]; then
+            echo "env_name prodcution from commit on main"
+          elif [ "${{ github.ref }}" = 'refs/heads/main' ] && [ "${{ github.event_name }}" = 'workflow_dispatch' ]; then
             echo "::set-output name=env_name::production"
+            echo "env_name prodcution from workflow_dispatch on main"
           else
             echo "::set-output name=env_name::acceptance"
+            echo "env_name acceptance"
           fi
     outputs:
-      env_name: ${{ steps.getenv.env_name }}
+      env_name: ${{ steps.getenv.outputs.env_name }}
   build-linux-runner:
     name: build github runner linux
-    needs: [parse_context]
+    needs: [parsecontext]
     environment: 
-      name: ${{ needs.parse_context.outputs.env_name }}
+      name: ${{ needs.parsecontext.outputs.env_name }}
     runs-on: ubuntu-latest
     steps:
+      - name: show env
+        run: |
+          echo "passed by parse_context:  [${{ needs.parse_context.outputs.env_name }}]"
       - uses: actions/checkout@v2
       - name: 'Az CLI login'
         uses: azure/login@v1
