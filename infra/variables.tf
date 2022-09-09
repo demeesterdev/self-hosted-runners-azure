@@ -21,6 +21,17 @@ variable "registry_build_task_name" {
   description = "name for the runner build task in acr"
 }
 
+variable "registry_agent_pool_name" {
+  type        = string
+  description = "name for the registry agent pool"
+}
+
+variable "registry_agent_pool_tier" {
+  type        = string
+  description = "name for the registry agent pool"
+  default = "S1"
+}
+
 variable "container_build_image_name" {
   type        = string
   description = "name for the container image"
