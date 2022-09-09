@@ -79,7 +79,7 @@ jobs:
           parse_tf_param_to_env_var 'container_build_linux_image_tag'       'RUNNER_BUILD_IMAGE_TAG_LINUX'
       
       # scale up to the amount of runs scheduled
-      - name: 'scale down agent-pool'
+      - name: 'scale up agent-pool'
         id: scaleagentsup
         run: |
           acr_task_arguments=()
@@ -92,7 +92,8 @@ jobs:
              jq --arg flag "$RUNNER_REGISTRY_AGENT_POOL_NAME" -c '
                 [
                   .[] | 
-                  select(.agentPoolName == $flag) 
+                  select(.agentPoolName == $flag) |
+                  select( .status == "Running" or .status == "Queued" or .status == "Started")]
                 ] | 
                 length |
                 . + 1' --raw-output
