@@ -97,13 +97,14 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-    - name: 'Az CLI login'
-      uses: azure/login@v1
-      with:
-        client-id: ${{ secrets.ARM_CLIENT_ID }}
-        tenant-id: ${{ secrets.ARM_TENANT_ID }}
-        subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-    - name: 'get acr data'
+      - uses: actions/checkout@v2
+      - name: 'Az CLI login'
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      - name: 'get acr data'
         id: getinfraparams
         run: |
           parse_tf_param_to_env_var() {
@@ -122,20 +123,20 @@ jobs:
           }
           parse_tf_param_to_env_var 'registry_name'                         'RUNNER_REGISTRY_NAME'
           parse_tf_param_to_env_var 'registry_agent_pool_name'              'RUNNER_REGISTRY_AGENT_POOL_NAME'
-    - name: scale-down agent pool
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-      run: |
-          unfinished_runs=$(
-             az acr task list-runs -r $RUNNER_REGISTRY_NAME |
-             jq -c '[.[] | {name: .name, status: .status} | select( .status == "Running" or .status == "Queued" or .status == "Started")] | length'
-          )
-          if [$unfinished_runs == 0] ; then
-            echo "::notice::no more running build tasks, scaling down run"
-            az acr agentpool update \
-              --registry $RUNNER_REGISTRY_NAME \
-              --name $RUNNER_REGISTRY_AGENT_POOL_NAME \
-              --count 0
-          else
-            echo "::warning::found $unfinished_runs unfinished runs on acr $RUNNER_REGISTRY_NAME. Scale down cancelled"
-          fi
+      - name: scale-down agent pool
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+            unfinished_runs=$(
+               az acr task list-runs -r $RUNNER_REGISTRY_NAME |
+               jq -c '[.[] | {name: .name, status: .status} | select( .status == "Running" or .status == "Queued" or .status == "Started")] | length'
+            )
+            if [$unfinished_runs == 0] ; then
+              echo "::notice::no more running build tasks, scaling down run"
+              az acr agentpool update \
+                --registry $RUNNER_REGISTRY_NAME \
+                --name $RUNNER_REGISTRY_AGENT_POOL_NAME \
+                --count 0
+            else
+              echo "::warning::found $unfinished_runs unfinished runs on acr $RUNNER_REGISTRY_NAME. Scale down cancelled"
+            fi
     
