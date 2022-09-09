@@ -115,7 +115,7 @@ jobs:
           echo "  -n '${RUNNER_BUILD_TASK_NAME}-ghaction-run-${GITHUB_RUN_ID}' \\"
           echo "  -c '${RUNNER_BUILD_CONTEXT}' \\"
           echo "  -f '${RUNNER_BUILD_CONTEXT_DOCKERFILE}' \\"
-          echo "  --agent-pool '${RUNNER_BUILD_AGENT_POOL_NAME}' \\"
+          echo "  --agent-pool '${RUNNER_REGISTRY_AGENT_POOL_NAME}' \\"
           echo "  --git-access-token '\${GH_TOKEN}' \\"
           echo "  --platform linux ${container_tags[@]}"
           echo ""
@@ -126,7 +126,7 @@ jobs:
             -n "${RUNNER_BUILD_TASK_NAME}-ghaction-run-${GITHUB_RUN_ID}" \
             -c "${RUNNER_BUILD_CONTEXT}" \
             -f "${RUNNER_BUILD_CONTEXT_DOCKERFILE}" \
-            --agent-pool "${RUNNER_BUILD_AGENT_POOL_NAME}" \
+            --agent-pool "${RUNNER_REGISTRY_AGENT_POOL_NAME}" \
             --git-access-token "${GH_TOKEN}" \
             --platform linux "${container_tags[@]}"
 
