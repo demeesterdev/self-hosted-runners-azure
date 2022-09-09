@@ -48,13 +48,13 @@ resource "azurerm_container_registry_task_schedule_run_now" "runner_build_task_l
 }
 
 resource "azurerm_private_endpoint" "runner_acr" {
-  name                = "${var.container_app_name}-acr-endpoint"
+  name                = "${var.registry_name}-endpoint"
   resource_group_name = azurerm_resource_group.runner_group.name
   location            = azurerm_resource_group.runner_group.location
   subnet_id           = azurerm_subnet.acr.id
 
   private_service_connection {
-    name                           = "${var.container_app_name}-acr-privateserviceconnection"
+    name                           = "${var.registry_name}-privateserviceconnection"
     private_connection_resource_id = azurerm_container_registry.runner_acr.id
     is_manual_connection           = false
     subresource_names              = ["registry"]
