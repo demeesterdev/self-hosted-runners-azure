@@ -95,7 +95,7 @@ jobs:
                   select(.agentPoolName == $flag) 
                 ] | 
                 length |
-                . + 1'
+                . + 1' --raw-output
           )
           
           az acr agentpool update \
