@@ -93,10 +93,12 @@ jobs:
   
   # scale down to zero runners if no tasks are running or queued
   scale-down:
+    name: scale-down agent pool
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: [parsecontext, deploy]
     environment: 
       name: ${{ needs.parsecontext.outputs.env_name }}
-    name: scale-down agent pool
     steps:
       - uses: actions/checkout@v2
       - name: 'Az CLI login'
