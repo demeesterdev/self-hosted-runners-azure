@@ -27,7 +27,7 @@ resource "azapi_resource" "aca_env" {
         internal : true
         #platformReservedCidr: 'string'
         #platformReservedDnsIP: 'string'
-        runtimeSubnetId: azurerm_subnet.aca_runtime.id #ID of subnet ACA runtine -> Resource ID of a subnet that Container App containers are injected into. This subnet must be in the same VNET as the subnet defined in infrastructureSubnetId.
+        runtimeSubnetId : azurerm_subnet.aca_runtime.id #ID of subnet ACA runtine -> Resource ID of a subnet that Container App containers are injected into. This subnet must be in the same VNET as the subnet defined in infrastructureSubnetId.
       }
     }
   })

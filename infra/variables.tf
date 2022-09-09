@@ -29,7 +29,7 @@ variable "registry_agent_pool_name" {
 variable "registry_agent_pool_tier" {
   type        = string
   description = "name for the registry agent pool"
-  default = "S1"
+  default     = "S1"
 }
 
 variable "container_build_image_name" {

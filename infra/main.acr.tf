@@ -40,7 +40,7 @@ resource "azurerm_container_registry_agent_pool" "runner_acr_pool" {
   location                  = azurerm_resource_group.runner_group.location
   container_registry_name   = azurerm_container_registry.runner_acr.name
   virtual_network_subnet_id = azurerm_subnet.acr.id
-  tier = var.registry_agent_pool_tier
+  tier                      = var.registry_agent_pool_tier
 }
 
 resource "azurerm_container_registry_task_schedule_run_now" "runner_build_task_linux" {
