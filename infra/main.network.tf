@@ -10,14 +10,22 @@ resource "azurerm_subnet" "default" {
   name                 = "default-subnet"
   resource_group_name  = azurerm_resource_group.runner_group.name
   virtual_network_name = azurerm_virtual_network.ghrunnervnet.name
-  address_prefixes     = ["10.0.1.0/24"]
+  address_prefixes     = ["10.0.0.0/24"]
 }
 
 resource "azurerm_subnet" "acr" {
   name                                      = "${var.container_app_name}-acr-subnet"
   resource_group_name                       = azurerm_resource_group.runner_group.name
   virtual_network_name                      = azurerm_virtual_network.ghrunnervnet.name
-  address_prefixes                          = ["10.0.2.0/24"]
+  address_prefixes                          = ["10.0.1.0/25"]
+  private_endpoint_network_policies_enabled = false
+}
+
+resource "azurerm_subnet" "aca_runtime" {
+  name                                      = "${var.container_app_name}-aca-runtime-subnet"
+  resource_group_name                       = azurerm_resource_group.runner_group.name
+  virtual_network_name                      = azurerm_virtual_network.ghrunnervnet.name
+  address_prefixes                          = ["10.0.1.128/25"]
   private_endpoint_network_policies_enabled = false
 }
 
@@ -25,17 +33,11 @@ resource "azurerm_subnet" "aca" {
   name                                      = "${var.container_app_name}-aca-subnet"
   resource_group_name                       = azurerm_resource_group.runner_group.name
   virtual_network_name                      = azurerm_virtual_network.ghrunnervnet.name
-  address_prefixes                          = ["10.0.4.0/23"] #next available is 10.0.6.0/x
+  address_prefixes                          = ["10.0.2.0/23"] #next available is 10.0.6.0/x
   private_endpoint_network_policies_enabled = false
 }
 
-resource "azurerm_subnet" "aca_runtime" {
-  name = "${var.container_app_name}-aca-runtime-subnet"
-  resource_group_name                       = azurerm_resource_group.runner_group.name
-  virtual_network_name                      = azurerm_virtual_network.ghrunnervnet.name
-  address_prefixes                          = ["10.0.3.0/24"]
-  private_endpoint_network_policies_enabled = false
-}
+
 
 resource "azurerm_private_dns_zone" "privatelink_azurecr_io" {
   name                = "privatelink.azurecr.io"
