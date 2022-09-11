@@ -45,7 +45,7 @@ jobs:
           parse_tf_param_to_env_var 'registry_name'                         'RUNNER_REGISTRY_NAME'
           parse_tf_param_to_env_var 'registry_agent_pool_name'              'RUNNER_REGISTRY_AGENT_POOL_NAME'
       - name: scale-down agent pool
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
             unfinished_runs=$(
                az acr task list-runs -r $RUNNER_REGISTRY_NAME |
