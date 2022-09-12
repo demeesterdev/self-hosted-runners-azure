@@ -92,11 +92,11 @@ resource "azapi_resource" "aca_ghrunner" {
               {
                 name      = "RUNNER_PAT"
                 secretRef = "github-runner-pat-token"
-              }
+              },
               {
                 name      = "RUNNER_APP_ID"
                 secretRef = "github-runner-application-id"
-              }
+              },
               {
                 name      = "RUNNER_APP_SECRET"
                 secretRef = "github-runner-application-secret"
