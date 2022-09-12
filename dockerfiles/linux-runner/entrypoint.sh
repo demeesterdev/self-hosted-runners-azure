@@ -68,20 +68,21 @@ elif [ -n "${RUNNER_APP_SECRET}" ] && [ -n "${RUNNER_APP_ID}" ]; then
   # app based authentication
   #
   log.debug 'authenticating as github app'
-  if ! helper.app.credentials.valid "${RUNNER_APP_SECRET}" "${RUNNER_APP_ID}" ; then
-    logger.error "authentication Failed"
+  helper.app.credentials.valid "${RUNNER_APP_SECRET}" "${RUNNER_APP_ID}"
+  if [ "$(helper.app.credentials.valid "${RUNNER_APP_SECRET}" "${RUNNER_APP_ID}")" != 'true' ]  ; then
+    log.error "authentication Failed"
     exit 1
   fi
 
-  log.debug "get token for installation in github organization ${RUNNER_ORG}"
-  if ! helper.app.installed "${RUNNER_APP_SECRET}" "${RUNNER_APP_ID}" "${RUNNER_ORG}" ; then
-    logger.error "no installation found in organization '${RUNNER_ORG}' for github app with id '${RUNNER_APP_ID}'"
+  log.debug "check installation of app in github organization ${RUNNER_ORG}"
+  helper.app.installed "${RUNNER_APP_SECRET}" "${RUNNER_APP_ID}" "${RUNNER_ORG}"
+  if [ "$(helper.app.installed "${RUNNER_APP_SECRET}" "${RUNNER_APP_ID}" "${RUNNER_ORG}")" != 'true' ] ; then
+    log.error "no installation found in organization '${RUNNER_ORG}' for github app with id '${RUNNER_APP_ID}'"
     exit 1
   fi
 
   log.debug "get token for registration of runner in github organization ${RUNNER_ORG}"
   RUNNER_PAT=$(helper.app.installation.token "${RUNNER_APP_SECRET}" "${RUNNER_APP_ID}" "${RUNNER_ORG}")
-
 elif [ -n "${RUNNER_APP_SECRET}" ] || [ -n "${RUNNER_APP_ID}" ]; then
   log.error 'both RUNNER_APP_SECRET and RUNNER_APP_ID need to be set for app authentication'
   exit 1

@@ -22,8 +22,18 @@ if [ "${USERNAME}" = "none" ] || ! id -u ${USERNAME} > /dev/null 2>&1; then
 fi
 
 # adjust version
-if [ "${RUNNER_VERSION}" = "latest" ]; then INSTALL_VERSION=$(curl -so- https://api.github.com/repos/actions/runner/releases/latest | jq --raw-output .name); 
-elif [ "${RUNNER_VERSION:0:1}" = "v" ]; then INSTALL_VERSION="${RUNNER_VERSION:1}" ; else exit 22; fi
+if [ "${RUNNER_VERSION}" = "latest" ]; then 
+  echo "getting latest version"
+  RUNNER_VERSION=$(curl -so- https://api.github.com/repos/actions/runner/releases/latest | jq --raw-output .name); 
+fi
+
+if [ "${RUNNER_VERSION:0:1}" = "v" ]; then 
+  INSTALL_VERSION="${RUNNER_VERSION:1}" ; 
+else 
+  echo "version must be specfied as 'latest' or semver 'vXX.XX.XX', current specification invalid: '$RUNNER_VERSION'"
+  exit 22
+fi
+echo "installing version v$INSTALL_VERSION"
 
 if [ ! -d "${INSTALL_DIR}" ]; then
     mkdir -p "${INSTALL_DIR}"
@@ -31,7 +41,7 @@ fi
 
 # download runner
 cd "${INSTALL_DIR}"
-curl -O -L -o runner.tar.gz https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
+curl -f -L -o runner.tar.gz https://github.com/actions/runner/releases/download/v${INSTALL_VERSION}/actions-runner-linux-x64-${INSTALL_VERSION}.tar.gz 
 tar xzf ./runner.tar.gz
 rm runner.tar.gz
 

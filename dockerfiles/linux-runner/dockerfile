@@ -74,7 +74,6 @@ RUN set -eux; \
     echo 'dockremap:165536:65536' >> /etc/subuid; \
     echo 'dockremap:165536:65536' >> /etc/subgid
 
-
 COPY scripts/*debian.sh /tmp/library-scripts/
 
 ENV RUNNER_ASSETS_DIR=/runnertmp
@@ -99,12 +98,12 @@ RUN export ARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && curl -f -L -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v${DUMB_INIT_VERSION}/dumb-init_${DUMB_INIT_VERSION}_${ARCH} \
     && chmod +x /usr/local/bin/dumb-init
 
-COPY entrypoint.sh logger.bash rootless-startup.sh /usr/bin/
+COPY entrypoint.sh logger.bash rootless-startup.sh helper.bash /usr/bin/
 
 RUN chmod +x /usr/bin/rootless-startup.sh /usr/bin/entrypoint.sh
 
 # Make the rootless runner directory executable
-RUN mkdir /run/user/1000 \
+RUN mkdir -p /run/user/1000 \
     && chown runner:runner /run/user/1000 \
     && chmod a+x /run/user/1000
 
