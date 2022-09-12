@@ -56,13 +56,21 @@ resource "azapi_resource" "aca_ghrunner" {
       configuration = {
         secrets = [
           {
-            name  = "github-runner-registration-token"
+            name  = "github-runner-pat-token"
             value = var.runner_registration_token
           },
           {
             name  = "github-runner-organization"
             value = var.runner_organization_name
-          }
+          },
+          {
+            name  = "github-runner-application-id"
+            value = var.runner_app_id
+          },
+          {
+            name  = "github-runner-application-secret"
+            value = var.runner_app_secret
+          },
         ]
         registries = [
           {
@@ -78,12 +86,20 @@ resource "azapi_resource" "aca_ghrunner" {
             image = "${azurerm_container_registry.runner_acr.login_server}/${var.container_build_image_name}:${var.container_build_linux_image_tag}"
             env = [
               {
-                name      = "GH_ORGANIZATION"
+                name      = "RUNNER_ORGANIZATION"
                 secretRef = "github-runner-organization"
               },
               {
-                name      = "GH_TOKEN"
-                secretRef = "github-runner-registration-token"
+                name      = "RUNNER_PAT"
+                secretRef = "github-runner-pat-token"
+              },
+              {
+                name      = "RUNNER_APP_ID"
+                secretRef = "github-runner-application-id"
+              },
+              {
+                name      = "RUNNER_APP_SECRET"
+                secretRef = "github-runner-application-secret"
               }
             ]
             resources = {

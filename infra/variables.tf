@@ -76,7 +76,22 @@ variable "container_app_name" {
 variable "runner_registration_token" {
   type        = string
   sensitive   = true
-  description = "token used by the runner to register itself"
+  description = "PAT token to retrieve a runner registration token must be specified if 'runner_app_id' and 'runner_app_secret' are empty"
+  default=""
+}
+
+variable "runner_app_id" {
+  type        = string
+  sensitive   = true
+  description = "id of github app instaled on organization. used to get registration token for runner. must be specified with 'runner_app_secret' when 'runner_registration_token' is empty."
+  default=""
+}
+
+variable "runner_app_secret" {
+  type        = string
+  sensitive   = true
+  description = "id of github app instaled on organization. used to get registration token for runner. must be specified with 'runner_app_id' when 'runner_registration_token' is empty."
+  default=""
 }
 
 variable "runner_organization_name" {
