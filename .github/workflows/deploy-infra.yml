@@ -79,17 +79,19 @@ jobs:
       id: plan
       run: terraform plan -no-color -input=false
       env:
-        TF_VAR_container_build_context_access_token: ${{ secrets.GITHUB_TOKEN }}
+        TF_VAR_container_build_context_access_token: ${{ secrets.GITHUB_TOKEN }} #use runner token from build context *auto generated
         TF_VAR_runner_organization_name: ${{ secrets.RUNNER_ORGANIZATION }}
-        TF_VAR_runner_registration_token: ${{ secrets.RUNNER_TOKEN }}
+        TF_VAR_runner_app_id: ${{ secrets.RUNNER_APP_ID }}
+        TF_VAR_runner_app_secret: ${{ secrets.RUNNER_APP_SECRET }}
 
     - name: Terraform Apply
       if: github.ref == 'refs/heads/main' && github.event_name == 'push' || github.event_name == 'workflow_dispatch'
       run: terraform apply -auto-approve -input=false
       env:
-        TF_VAR_container_build_context_access_token: ${{ secrets.GITHUB_TOKEN }}
+        TF_VAR_container_build_context_access_token: ${{ secrets.GITHUB_TOKEN }} #use runner token from build context *auto generated
         TF_VAR_runner_organization_name: ${{ secrets.RUNNER_ORGANIZATION }}
-        TF_VAR_runner_registration_token: ${{ secrets.RUNNER_TOKEN }}
+        TF_VAR_runner_app_id: ${{ secrets.RUNNER_APP_ID }}
+        TF_VAR_runner_app_secret: ${{ secrets.RUNNER_APP_SECRET }}
 
   # scale down to zero runners if no tasks are running or queued
   scaleagents:
