@@ -10,7 +10,7 @@ on:
 
   # runs after the other CI/CD pipelines to scale down the runners when no runs are running.
   workflow_run:
-    workflows: [CICD container app Infra, CICD runner container]
+    workflows: [CICD container app Infra, CICD runnercontainer]
     types: [completed]
 
 permissions:
@@ -76,13 +76,21 @@ jobs:
           parse_tf_param_to_env_var 'registry_agent_pool_name'              'RUNNER_REGISTRY_AGENT_POOL_NAME'
       - name: scale-down agent pool
         run: |
+          acr_task_arguments=()
+          acr_task_arguments+=(--output)
+          acr_task_arguments+=('json')
+          if [ "$ACTIONS_STEP_DEBUG" = 'true' ]; then
+            acr_task_arguments+=(--debug)
+          fi
+
           # test if ok to scale agent pool
+          echo "::debug:: check if agent pool is ready to scale"
           agent_provisioning_state=$(
             az acr agentpool show \
             -r $RUNNER_REGISTRY_NAME \
             -n $RUNNER_REGISTRY_AGENT_POOL_NAME \
-            --query "provisioningState" \
-            --output tsv
+            "${acr_task_arguments[@]}" |
+            jq .provisioningState --raw-output
           )
           if [ "$agent_provisioning_state" != 'Succeeded'] ; then
             notice="Agentpool not in stable provisioningstate 'Succeeded' but in state '${agent_provisioning_state}. Skipping Autoscaling"
@@ -90,23 +98,30 @@ jobs:
             echo "::notice:: ${notice}"
             exit 0
           fi
+          
+          echo "::debug:: agent pool stable in state $agent_provisioning_state"
+          echo "::debug:: getting unfinished run list"
 
           unfinished_runs=$(
              az acr task list-runs \
              -r $RUNNER_REGISTRY_NAME \
-             --query "[?(status == 'Queued' || status == 'Started' || status == 'Running')] | length(@)" \
-             --output tsv
+             --query "[?(status == 'Queued' || status == 'Started' || status == 'Running')]" \
+             "${acr_task_arguments[@]}" | 
+             jq .[].name --raw-output
           )
-          if [ "$unfinished_runs" == '0' ] ; then
+
+          if [ "${#unfinished_runs[@]}" == '0' ] ; then
             notice="no more running build tasks, scaling down run"
             echo "$notice"
             echo "::notice::$notice"
+            echo "::debug:: scaling down agent pool $RUNNER_REGISTRY_AGENT_POOL_NAME for registry $RUNNER_REGISTRY_NAME to 0 instances"
             az acr agentpool update \
               --registry $RUNNER_REGISTRY_NAME \
               --name $RUNNER_REGISTRY_AGENT_POOL_NAME \
               --count '0'
           else
-            echo "::warning::found $unfinished_runs unfinished runs on acr $RUNNER_REGISTRY_NAME. Scale down cancelled"
+            run_array_string=$(IFS=, ; echo "${unfinished_runs[*]}")
+            echo "::warning::found ${#unfinished_runs[@]} unfinished runs on acr $RUNNER_REGISTRY_NAME, Scale down cancelled. Runs in unfinshed state <Queued|Started|Running> : [$run_array_string]"
           fi
 
 
