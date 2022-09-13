@@ -1,10 +1,6 @@
-name: cleanup runners
+name: cleanup runners (archive)
 
 on:
-  schedule:
-    # * is a special character in YAML so you have to quote this string
-    - cron:  '0 1,13 * * *'
-  
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
