@@ -39,9 +39,108 @@ jobs:
           fi
     outputs:
       env_name: ${{ steps.getenv.outputs.env_name }}
+  scale-up-agent-pool:
+    name: scale up container build agent pool
+    needs: [parsecontext]
+    environment: 
+      name: ${{ needs.parsecontext.outputs.env_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: 'Az CLI login'
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+      - name: 'get acr data'
+        id: getinfraparams
+        run: |
+          parse_tf_param_to_env_var() {
+            # read tfvar files from infra folder and look for a match, the last match is set as env value
+            # $1 = name of parameter to match
+            # $2 = the env value in subsequent steps
+            param_value=""
+            for f in $( find ./infra -name *.auto.tfvars ); do 
+              for match in $(grep "^$1 " $f); do
+                if [[ "$match" =~ \"(.*)\" ]] ; then
+                    param_value="${BASH_REMATCH[1]}"
+                fi
+              done
+            done
+            echo "$2=$param_value" >> $GITHUB_ENV
+          }
+          parse_tf_param_to_env_var 'registry_name'                         'RUNNER_REGISTRY_NAME'
+          parse_tf_param_to_env_var 'registry_build_task_name'              'RUNNER_BUILD_TASK_NAME'
+          parse_tf_param_to_env_var 'registry_agent_pool_name'              'RUNNER_REGISTRY_AGENT_POOL_NAME'
+      - name: 'scale up runner'
+          # testing authentication
+          acr_task_arguments=()
+          acr_task_arguments+=(--output)
+          acr_task_arguments+=('json')
+          if [ "$ACTIONS_STEP_DEBUG" = 'true' ]; then
+            acr_task_arguments+=(--debug)
+          fi
+
+          retries_left=10
+          while [[ ${retries_left} -gt 0 ]]; do
+            
+            agent=$(
+              az acr agentpool show \
+              -r $RUNNER_REGISTRY_NAME \
+              -n $RUNNER_REGISTRY_AGENT_POOL_NAME \
+              "${acr_task_arguments[@]}" 
+            )
+            agent_provisioning_state=$(echo "$agent" | jq .provisioningState --raw-output)
+            if [ "$agent_provisioning_state" != 'Succeeded' ] ; then
+              echo "Agentpool not in stable provisioningstate 'Succeeded' but in state '${agent_provisioning_state}. Retrying"
+              echo ' ... Retrying in 120 seconds'
+              sleep 30
+              echo ' ... Retrying in  90 seconds'
+              sleep 30
+              echo ' ... Retrying in  60 seconds'
+              sleep 30
+              echo ' ... Retrying in  30 seconds'
+              sleep 30
+              retries_left=$((retries_left - 1))
+              continue
+            fi
+
+            current_agents=$(echo "$agent" | jq .count --raw-output)
+            required_agents=$(
+              az acr task list-runs \
+                -r $RUNNER_REGISTRY_NAME \
+                --query "[?(agentPoolName == '$RUNNER_REGISTRY_AGENT_POOL_NAME' && (status == 'Queued' || status == 'Started' || status == 'Running')) ]" \
+                "${acr_task_arguments[@]}" |
+                jq '[(. | length | . + 1), 4 ] | min' --raw-output
+            )
+
+            if [ $(( current_agents < required_agents )) ] ; then
+              az acr agentpool update \
+                --registry $RUNNER_REGISTRY_NAME \
+                --name $RUNNER_REGISTRY_AGENT_POOL_NAME \
+                --count $required_agents \
+                "${acr_task_arguments[@]}"
+                break
+            fi
+          done
+
+          agent=$(
+              az acr agentpool show \
+              -r $RUNNER_REGISTRY_NAME \
+              -n $RUNNER_REGISTRY_AGENT_POOL_NAME \
+              "${acr_task_arguments[@]}" 
+          )
+          agent_provisioning_state=$(echo "$agent" | jq .provisioningState --raw-output)
+
+          if [  "$agent_provisioning_state" != 'Succeeded' ]; then
+            echo 'failed to scale up agent pool.'
+            exit 2
+          fi
+
   build-linux-runner:
     name: build github runner linux
-    needs: [parsecontext]
+    needs: [parsecontext,scale-up-agent-pool]
     environment: 
       name: ${{ needs.parsecontext.outputs.env_name }}
     runs-on: ubuntu-latest
