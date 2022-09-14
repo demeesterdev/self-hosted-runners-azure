@@ -1,4 +1,4 @@
-name: CICD container app Infra
+name: CICD container app infra
 
 # Controls when the workflow will run
 on:
