@@ -73,7 +73,9 @@ jobs:
           parse_tf_param_to_env_var 'registry_name'                         'RUNNER_REGISTRY_NAME'
           parse_tf_param_to_env_var 'registry_build_task_name'              'RUNNER_BUILD_TASK_NAME'
           parse_tf_param_to_env_var 'registry_agent_pool_name'              'RUNNER_REGISTRY_AGENT_POOL_NAME'
+
       - name: 'scale up runner'
+        run: |
           # testing authentication
           acr_task_arguments=()
           acr_task_arguments+=(--output)
