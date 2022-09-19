@@ -8,7 +8,7 @@ on:
       - CICD runner container
     types:
       - completed
-      
+
   schedule:
     # * is a special character in YAML so you have to quote this string
     - cron:  '0 1,13 * * *'
@@ -74,7 +74,7 @@ jobs:
             "${acr_task_arguments[@]}" |
             jq .provisioningState --raw-output
           )
-          if [ "$agent_provisioning_state" != 'Succeeded'] ; then
+          if [ "$agent_provisioning_state" != 'Succeeded' ] ; then
             notice="Agentpool not in stable provisioningstate 'Succeeded' but in state '${agent_provisioning_state}. Skipping Autoscaling"
             echo "$notice"
             echo "::notice:: ${notice}"

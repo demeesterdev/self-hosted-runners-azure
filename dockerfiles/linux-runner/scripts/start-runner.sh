@@ -162,6 +162,12 @@ RUNNER_REGISTRATION_TOKEN=$(echo "${TOKEN_RESPONSE}" | jq .token --raw-output)
 
 cd /home/runner/actions-runner
 
+config_task_arguments=()
+if [ -n "${RUNNER_LABELS}" ]; then 
+  config_task_arguments+=(--labels)
+  config_task_arguments+=("${RUNNER_LABELS}")
+fi
+
 cleanup() {
     echo "Removing runner..."
     ./config.sh remove --unattended --token ${RUNNER_REGISTRATION_TOKEN}
@@ -173,7 +179,7 @@ trap 'cleanup; exit 143' TERM
 retries_left=2
 while [[ ${retries_left} -gt 0 ]]; do
   echo 'Configuring the runner.'
-  ./config.sh --unattended --url ${RUNNER_REGISTRATION_LOCATION} --token ${RUNNER_REGISTRATION_TOKEN} --name ${RUNNER_NAME} --ephemeral --disableupdate
+  ./config.sh --unattended --url ${RUNNER_REGISTRATION_LOCATION} --token ${RUNNER_REGISTRATION_TOKEN} --name ${RUNNER_NAME} --ephemeral --disableupdate "${config_task_arguments[@]}"
     
 
   if [ -f .runner ]; then
