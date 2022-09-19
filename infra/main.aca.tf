@@ -71,6 +71,10 @@ resource "azapi_resource" "aca_ghrunner" {
             name  = "github-runner-application-secret"
             value = var.runner_app_secret
           },
+          {
+            name  = "github-runner-labels"
+            value = var.runner_labels
+          }
         ]
         registries = [
           {
@@ -100,6 +104,10 @@ resource "azapi_resource" "aca_ghrunner" {
               {
                 name      = "RUNNER_APP_SECRET"
                 secretRef = "github-runner-application-secret"
+              },
+              {
+                name      = "RUNNER_LABELS"
+                secretRef = "github-runner-labels"
               }
             ]
             resources = {

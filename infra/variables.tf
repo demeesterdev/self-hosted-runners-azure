@@ -77,24 +77,29 @@ variable "runner_registration_token" {
   type        = string
   sensitive   = true
   description = "PAT token to retrieve a runner registration token must be specified if 'runner_app_id' and 'runner_app_secret' are empty"
-  default=""
+  default     = ""
 }
 
 variable "runner_app_id" {
   type        = string
   sensitive   = true
   description = "id of github app instaled on organization. used to get registration token for runner. must be specified with 'runner_app_secret' when 'runner_registration_token' is empty."
-  default=""
+  default     = ""
 }
 
 variable "runner_app_secret" {
   type        = string
   sensitive   = true
   description = "id of github app instaled on organization. used to get registration token for runner. must be specified with 'runner_app_id' when 'runner_registration_token' is empty."
-  default=""
+  default     = ""
 }
 
 variable "runner_organization_name" {
   type        = string
   description = "organization used by the runner for registration"
+}
+
+variable "runner_labels" {
+  type        = string
+  description = "comma seperated list of labels. labels should not contain spaces."
 }
