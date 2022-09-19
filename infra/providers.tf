@@ -1,5 +1,5 @@
 terraform {
-  required_version = "1.2.8"
+  required_version = "1.2.9"
   backend "azurerm" {
     resource_group_name  = "demapp-ghrunner-demo-state"
     storage_account_name = "demappghrunnertfstate"
